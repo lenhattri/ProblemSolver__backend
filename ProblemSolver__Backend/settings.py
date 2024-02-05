@@ -11,7 +11,12 @@ https://docs.djangoproject.com/en/5.0/ref/settings/
 """
 
 from pathlib import Path
+import os
+from dotenv import load_dotenv
+dotenv_path = os.path.join(os.path.dirname(__file__), '.env')
 
+# Load file .env
+load_dotenv(dotenv_path)
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
 
@@ -124,10 +129,12 @@ STATIC_URL = 'static/'
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 
-OPENAI_API_KEY = "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"
 
-SERPER_API_KEY = "5976510f009425d063093e363d1b01b3aff3de80"
+OPENAI_API_KEY = os.getenv('OPENAI_API_KEY')
 
-APIFY_TOKEN="apify_api_8lWSRiKeH4CJhPcZHDUGYKovR6c0AF0B8axM"
+SERPER_API_KEY = os.getenv('SERPER_API_KEY')
 
-GOOGLE_AI_API_KEY = "AIzaSyBN-DO8VAmKqT8R6GXVCFNSn5g4yx4gknY"
+APIFY_TOKEN= os.getenv('APIFY_TOKEN')
+
+GOOGLE_AI_API_KEY = os.getenv('GOOGLE_AI_API_KEY')
+
