@@ -11,19 +11,22 @@ from bs4 import BeautifulSoup
 import requests
 import re
 
-config_list = [
+config_list_gpt_35 = [
     {
         'model': 'gpt-3.5-turbo-0125',
         'api_key': settings.OPENAI_API_KEY,
     },
 ]
-config_list_gemini_pro = [
+
+config_list_gpt_4 = [
     {
-        'model': 'gemini-pro',
-        'api_key': settings.GOOGLE_AI_API_KEY,
-        'api_type': 'google'
+        'model': 'gpt-4-turbo-preview',
+        'api_key': settings.OPENAI_API_KEY,
     },
 ]
+
+
+#Assistants Instrutions
 
 scraper_instruction ="""
 
@@ -31,27 +34,28 @@ You always run first. When the Researcher tell you "SCRAPER, REPEAT", you will r
 
 You are a Website Content Crawler. You obtained an input with raw content. The data is about an algorithm problem.
 
-Your duty is clean it  and return it with JSON format. Just return the cleaned data WITHOUT ANY TEXT.
+Your duty return whole data content in this websites . Just return the cleaned data WITHOUT ANY TEXT.
 
--First, you will search google. And then, you choose the two most relevant url. And scrape it AS MUCH AS DATA POSSIBLE IN THIS URL.
- Note that you DON'T scrape https://leetcode.com url directly because this website can't scrape.
+-First, you will search google. And then, you choose the most relevant url. And scrape it AS MUCH AS DATA POSSIBLE IN THIS URL. But just scrape 1 url.
+ Note that you DON'T scrape https://leetcode.com and https://medium.com url directly because this website can't scrape.
  DON'T REPEAT THIS ACTION UNLESS Researcher tell you do. I said one more time, DON'T REPEAT.
-
--After that, you will clean the raw data returned. Return the REALLY cleaned data with JSON Format WITHOUT ANY TEXT
-"""
-
-researcher_instruction = """
-- You run after received the data of Scraper. If the data from Scraper didn't detail enough. Include:
-	 +overview: Explain the problem
-	 +input: The example input WITHOUT ANY TEXT
+ If you can't connect to this url. Try scrape another url
+-After that, you will get WHOLE content data from this websites. The data contain:
+     +overview: Explain the problem
+	 +input: The example input
 	 +output: Output due to the input fields. 
 	 +explain_output: tell why we have the output after the input. If the output is very easy to understand, return ""
 	 +approachs: The list of approachs of this problem
 	 +title: The name of solution
 	 +step: The step of this approachs
 	 +complexity: Return the complexity of this approachs WITHOUT ANY TEXT
-	 +code: code using C++ 
-You will say "SCRAPER, REPEAT" WITHOUT ANY TEXT. BUT YOU JUST CAN REPEAT LESS THAN 3 TIMES
+	 +code: code
+ Return the data
+"""
+
+researcher_instruction = """
+- You run after received the data of Scraper. If the data from Scraper didn't detail enough.
+You will say "SCRAPER, REPEAT" and end conversation WITHOUT ANY TEXT . BUT YOU JUST CAN REPEAT LESS THAN 3 TIMES
 If you satisfied, you will do these instruction: 
 
 - Problem Understanding: You should be able to understand the problem statement.
@@ -65,8 +69,7 @@ you should think "Can i research deeper" and continue call Scraperone more time.
 understanding the logic behind the solution, and presenting it in a clear and concise manner.
 
 - Performance and Accuracy: To improve performance and accuracy, you could limit the number of search and scrape operations.
-Also, you could use machine learning techniques to learn from past interactions and improve your ability to solve algorithm problems over time.
-You should run the code and fix it for increase performance
+Also. You should run the code and fix it for increase performance
 
 Generate JSON: You MUST generate a JSON object with fields like
  {“overview”:data,
@@ -81,9 +84,9 @@ Generate JSON: You MUST generate a JSON object with fields like
 		"code": data
 	}
 
-],"code":[]} .
+]} .
  Note that:
-	 +overview: Explain the problem
+	 +overview: Explain the problem. Explain why we can use the approachs, explain data structures if that data strucures is rare.
 	 +input: The example input WITHOUT ANY TEXT
 	 +output: Output due to the input fields. 
 	 +explain_output: tell why we have the output after the input. If the output is very easy to understand, return ""
@@ -95,7 +98,15 @@ Generate JSON: You MUST generate a JSON object with fields like
 
 When you done, You MUST return the JSON. After generate JSON, tell "TERMINATE" outside JSON format in the end WITHOUT ANY TEXT 
 """
+
+#Function here
+
 def web_scraping(url):
+    """
+    Web scrape function using BeautifulSoup
+    @params
+    - url: string
+    """
     with requests.Session() as session:
         try:
             response = session.get(url)
@@ -117,6 +128,11 @@ def web_scraping(url):
 
 
 def google_search(search_keyword):    
+    """
+    Function google search using Serper API
+    @params
+    - search_keyword: string
+    """
     print(search_keyword)
     url = "https://google.serper.dev/search"
     
@@ -142,22 +158,12 @@ user_proxy = UserProxyAgent(
     }
 )
 
-difficulty = GPTAssistantAgent(
-    name="difficulty reviewer",
-    llm_config={
-        "config_list": config_list,
-        "assistant_id": "asst_a1UfEsDoYNTRz19DPTibUtVI"
-    },
-    code_execution_config={
-        "use_docker": False,
-    }
-)
 scraper = GPTAssistantAgent(
     name="scraper",
     overwrite_instructions=True,
     instructions= scraper_instruction,
     llm_config={
-        "config_list": config_list,
+        "config_list": config_list_gpt_35,
         "assistant_id": "asst_PbdYfnKYdjkTpEoNJRPSDg4u"
     },
     code_execution_config={
@@ -171,32 +177,24 @@ scraper.register_function(
     }
 )
 
-researcher = AssistantAgent(
+researcher = GPTAssistantAgent(
     name="researcher",
     overwrite_instructions=True,
     instructions= researcher_instruction,
     llm_config={
-        "config_list": config_list,
+        "config_list": config_list_gpt_4,
         "assistant_id": "asst_o6f79wNVkXoPE1QWfOzBS9bj"
     },
     code_execution_config={
         "use_docker": False,
     }
 )
-groupchat = autogen.GroupChat(agents=[user_proxy,scraper,researcher], messages=[], max_round=12)
-manager = autogen.GroupChatManager(
-                groupchat=groupchat,
-                llm_config={
-                    "config_list": config_list
-                    },
-                code_execution_config={
-                    "use_docker": False,
-                    }
-            )
+
 # Views part
-class GPT40DifficultyView(APIView):
+
+class GPT40ResearchView(APIView):
     """
-    GPT-4 Algorithm Difficulty Reviewer API
+    GPT-4 Algorithm Researching API
     [POST]/api/v1/difficulty
     """
     def post(self, request, format=None):
@@ -206,10 +204,28 @@ class GPT40DifficultyView(APIView):
             print('DATA: ',raw_data)
             data = json.loads(raw_data)
             message = data['data']
-            user_proxy.initiate_chat(manager, message=message)
+
+
+            groupchat = autogen.GroupChat(agents=[user_proxy,scraper,researcher], messages=[], max_round=12)
+            manager = autogen.GroupChatManager(
+                groupchat=groupchat,
+                llm_config={
+                    "config_list": config_list_gpt_4
+                    },
+                code_execution_config={
+                    "use_docker": False,
+                    }
+            )
+
+            user_proxy.initiate_chat(manager, message="""
+            Problem:
+            {}
+            """.format(message))
+
             result = user_proxy.last_message()
             print(result)
             res = result['content'].replace("TERMINATE", "").strip()
+            
             res_final =json.dumps(
                 {
                     "data": res
