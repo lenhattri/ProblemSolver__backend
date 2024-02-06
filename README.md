@@ -5,7 +5,8 @@
   - Django REST
   - Autogen
   - LLMs
-
+# IDEA
+  - Áp dụng mô hình ngôn ngữ lớn LLMs(Large Language Models) vào hệ thống đa tác tử MAS(Multi-Agents System) để giải quyết các vấn đề phức tạp. Áp dụng thực tiễn vào một website giúp phân tích và giải quyết vấn đề giải thuật bằng AI
 # INSTALLATION
 
 - Create venv:
@@ -42,6 +43,8 @@
   ```
 - Clone git repository
   
+  Fork this repository and run this command:
+  
   ```
   git clone https://github.com/lenhattri/ProblemSolver__backend
   ```
@@ -58,8 +61,13 @@
   python manage.py makemigrations
   python manage.py migrate
   ```
+- Change all api keys in ProblemSolver__Backend/.env to yours(Don't require APIFY_API_KEY)
+  
 - Finally, run
   ```
   python manage.py runserver
   ```
+
+# CONVENTIONS
+  - Phải xóa hết api key trong env trước khi commit(thay bằng "...")
   
