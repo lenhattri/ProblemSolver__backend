@@ -46,7 +46,7 @@
   Fork this repository and run this command:
   
   ```
-  git clone https://github.com/lenhattri/ProblemSolver__backend
+  git clone https://github.com/{your-user-name}/ProblemSolver__backend
   ```
 
 - Install requirements
@@ -61,7 +61,13 @@
   python manage.py makemigrations
   python manage.py migrate
   ```
-- Change all api keys in ProblemSolver__Backend/.env to yours(Don't require APIFY_API_KEY)
+- Create .env
+  ```
+  cd ProblemSolver__Backend
+  cp .example.env .env
+  ```
+  And replace content with your api key
+  
   
 - Finally, run
   ```
@@ -69,5 +75,6 @@
   ```
 
 # CONVENTIONS
-  - Phải xóa hết api key trong env trước khi commit(thay bằng "...")
+
+(updating)
   
