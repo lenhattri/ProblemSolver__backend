@@ -20,5 +20,5 @@ from app import views
 
 urlpatterns = [
     path('admin/', admin.site.urls),
-    path('api/v1/difficulty',views.GPT40DifficultyView.as_view(),name='difficulty')
+    path('api/v1/research',views.GPT40ResearchView.as_view(),name='research')
 ]
