@@ -1,5 +1,5 @@
 # OVERVIEW
-This is an multi-agents project
+This is an multi-agents project(This project was pause)
 
 # TECHNOLOGIES
   - Django REST
