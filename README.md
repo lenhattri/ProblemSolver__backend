@@ -1,5 +1,5 @@
 # OVERVIEW
-Đây là một dự án nghiên cứu khoa học cấp trường(do sinh viên làm) Đại Học An Giang do Lê Nhật Trí chủ nhiệm và phát triển chính 
+This is an multi-agents project
 
 # TECHNOLOGIES
   - Django REST
