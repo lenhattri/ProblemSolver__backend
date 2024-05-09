@@ -1,5 +1,5 @@
 # OVERVIEW
-This is an multi-agents project(This project was pause)
+Một RESTFul API Server dùng để sinh mã nguồn website căn bản
 
 # TECHNOLOGIES
   - Django REST
